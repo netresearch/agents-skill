@@ -169,6 +169,13 @@ fi
 detect_language
 
 # Output JSON
+# Handle empty quality_tools array
+if [ ${#QUALITY_TOOLS[@]} -eq 0 ]; then
+    TOOLS_JSON="[]"
+else
+    TOOLS_JSON="$(printf '%s\n' "${QUALITY_TOOLS[@]}" | jq -R . | jq -s .)"
+fi
+
 jq -n \
     --arg type "$PROJECT_TYPE" \
     --arg lang "$LANGUAGE" \
@@ -176,7 +183,7 @@ jq -n \
     --arg build "$BUILD_TOOL" \
     --arg framework "$FRAMEWORK" \
     --argjson docker "$HAS_DOCKER" \
-    --argjson tools "$(printf '%s\n' "${QUALITY_TOOLS[@]}" | jq -R . | jq -s .)" \
+    --argjson tools "$TOOLS_JSON" \
     --arg test "$TEST_FRAMEWORK" \
     --arg ci "$CI" \
     '{
